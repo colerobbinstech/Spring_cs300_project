@@ -2,6 +2,8 @@ package CtCILibrary;
 
 import java.util.HashMap;
 
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
 /* One node in the trie. Most of the logic of the trie is implemented
  * in this class.
  */
@@ -60,6 +62,10 @@ public class TrieNode {
      */
     public TrieNode getChild(char c) {
     	return children.get(c);
+    }
+
+    public HashMap<Character, TrieNode> getChildren() {
+        return children;
     }
 
     /* Returns whether this node represents the end of a complete word. */

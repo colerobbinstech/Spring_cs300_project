@@ -50,4 +50,26 @@ public class Trie
     public TrieNode getRoot() {
     	return root;
     }
+
+    public String getLongestWord(String prefix) {
+        TrieNode head = root;
+        for(int i = 0; i < prefix.length(); i++) {
+            head = head.getChild(prefix.charAt(i));
+            if(head == null) return "";
+        }
+        
+        int length = 0, maxLength = 0;
+        
+
+
+        return prefix;
+    }
+
+    public String traverseAndAppend(String body, TrieNode cur) {
+        
+        for(TrieNode child : cur.getChildren().values()) {
+            System.out.println(child);
+        }        
+        return body;
+    }
 }
