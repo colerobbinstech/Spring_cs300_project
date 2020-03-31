@@ -8,6 +8,36 @@
 #include "longest_word_search.h"
 #include "queue_ids.h"
 #include <sys/unistd.h>
+#ifndef mac
+size_t                  /* O - Length of string */
+strlcpy(char       *dst,        /* O - Destination string */
+        const char *src,      /* I - Source string */
+        size_t      size)     /* I - Size of destination string buffer */
+{
+    size_t    srclen;         /* Length of source string */
+
+
+    /*
+     * Figure out how much room is needed...
+     */
+
+    size --;
+
+    srclen = strlen(src);
+
+    /*
+     * Copy the appropriate amount...
+     */
+
+    if (srclen > size)
+        srclen = size;
+
+    memcpy(dst, src, srclen);
+    dst[srclen] = '\0';
+
+    return (srclen);
+}
+#endif
 
 void send(char* prefix, int id)
 {
