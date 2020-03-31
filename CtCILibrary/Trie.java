@@ -53,6 +53,7 @@ public class Trie
 
     public String getLongestWord(String prefix) {
         TrieNode head = root;
+        //Set head to last char of prefix
         for(int i = 0; i < prefix.length(); i++) {
             head = head.getChild(prefix.charAt(i));
             if(head == null) return "";
@@ -68,14 +69,14 @@ public class Trie
         }
         String longestWord = body;
         //Loop through hashmap for each child
-        for(int i = 0; i < 26; i++) {
-            if(cur.getChild((char)(i+97)) != null) {
-                String temp = traverseAndAppend(body + cur.getChar(), cur.getChild((char)(i+97)));
+        for(int i = (int)'a'; i < (int)'z'; i++) {
+            if(cur.getChild((char)i) != null) {
+                String temp = traverseAndAppend(body + cur.getChar(), cur.getChild((char)i));
                 if(temp.length() >= longestWord.length()) {
                     longestWord = temp;
                 }
             }
         }        
-        return body;
+        return longestWord;
     }
 }

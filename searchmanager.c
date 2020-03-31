@@ -126,6 +126,7 @@ int main(int argc, char** argv) {
     int prefixCount = argc - 2;
     response_buf response;
     response_buf* responseArray;
+    int buffer_length=sizeof(response_buf)-sizeof(long);
 
     //Loop through each prefix
     //Starts at 1 since example output shows msgsnds as 1-indexed
@@ -141,6 +142,7 @@ int main(int argc, char** argv) {
 
         //Send the message
         send(word, i);
+        printf("Message(%d): \"%s\" Sent (%d bytes)",i, word, buffer_length);
         sleep(waitTime);
 
         //Receive one message so we can see total amount of passages
