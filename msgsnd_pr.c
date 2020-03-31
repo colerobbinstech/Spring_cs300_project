@@ -47,8 +47,8 @@ int main(int argc, char**argv)
     prefix_buf sbuf;
     size_t buf_length;
 
-    if (argc <= 1 || strlen(argv[1]) <2) {
-        printf("Error: please provide prefix of at least two characters for search\n");
+    if (argc <= 1 || strlen(argv[1]) <3) {
+        printf("Error: please provide prefix of at least three characters for search\n");
         printf("Usage: %s <prefix>\n",argv[0]);
         exit(-1);
     }

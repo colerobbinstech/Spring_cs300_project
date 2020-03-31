@@ -57,18 +57,24 @@ public class Trie
             head = head.getChild(prefix.charAt(i));
             if(head == null) return "";
         }
-        
-        int length = 0, maxLength = 0;
-        
-
-
-        return prefix;
+        String longestWord = traverseAndAppend(prefix, head);
+        return longestWord;
     }
 
     public String traverseAndAppend(String body, TrieNode cur) {
-        
-        for(TrieNode child : cur.getChildren().values()) {
-            System.out.println(child);
+        //No more children to traverse down
+        if(cur.getChildren().size() == 0) {
+            return (body + cur.getChar());
+        }
+        String longestWord = body;
+        //Loop through hashmap for each child
+        for(int i = 0; i < 26; i++) {
+            if(cur.getChild((char)(i+97)) != null) {
+                String temp = traverseAndAppend(body + cur.getChar(), cur.getChild((char)(i+97)));
+                if(temp.length() > longestWord.length()) {
+                    longestWord = temp;
+                }
+            }
         }        
         return body;
     }

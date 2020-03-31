@@ -2,8 +2,6 @@ package CtCILibrary;
 
 import java.util.HashMap;
 
-import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
-
 /* One node in the trie. Most of the logic of the trie is implemented
  * in this class.
  */
