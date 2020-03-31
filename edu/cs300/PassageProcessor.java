@@ -67,15 +67,11 @@ public class PassageProcessor {
                     SearchResult result = resultsOutputArray.take();
 
                     if(result.found) {
-                        System.out.println("Worker-" + result.passageID + " " + 
-                            req.requestID + ":" + req.prefix + " found");
                         MessageJNI.writeLongestWordResponseMsg(req.requestID, req.prefix, 
                                 result.passageID, passages.get(result.passageID), result.longestWord,
                                  passageCount, 1);
                     }
                     else {
-                        System.out.println("Worker-" + result.passageID + " " + 
-                            req.requestID + ":" + req.prefix + " not found");
                         MessageJNI.writeLongestWordResponseMsg(req.requestID, req.prefix, 
                             result.passageID, passages.get(result.passageID), result.longestWord, 
                             passageCount, 0);

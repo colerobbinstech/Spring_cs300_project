@@ -77,8 +77,6 @@ void send(char* prefix, int id)
     }
     // else
     //     fprintf(stderr,"Message(%d): \"%s\" Sent (%d bytes)\n", sbuf.id, sbuf.prefix,(int)buf_length);
-
-    exit(0);
 }
 
 response_buf receive()
@@ -113,7 +111,6 @@ response_buf receive()
     } while ((ret < 0 ) && (errno == 4));
     //fprintf(stderr,"msgrcv error return code --%d:$d--",ret,errno);
 
-    exit(0);
 }
 
 int main(int argc, char** argv) {
@@ -142,7 +139,7 @@ int main(int argc, char** argv) {
 
         //Send the message
         send(word, i);
-        printf("Message(%d): \"%s\" Sent (%d bytes)",i, word, buffer_length);
+        printf("Message(%d): \"%s\" Sent (%d bytes)",i, word,buffer_length);
         sleep(waitTime);
 
         //Receive one message so we can see total amount of passages

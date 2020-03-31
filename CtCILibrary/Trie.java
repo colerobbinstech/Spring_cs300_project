@@ -58,7 +58,8 @@ public class Trie
             head = head.getChild(prefix.charAt(i));
             if(head == null) return "";
         }
-        String longestWord = traverseAndAppend(prefix, head);
+        //traverseAndAppend appends the current char so we start the string with the last char removed
+        String longestWord = traverseAndAppend(prefix.substring(0, prefix.length()-1), head);
         return longestWord;
     }
 
