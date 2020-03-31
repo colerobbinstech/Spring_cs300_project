@@ -71,7 +71,7 @@ public class Trie
         for(int i = 0; i < 26; i++) {
             if(cur.getChild((char)(i+97)) != null) {
                 String temp = traverseAndAppend(body + cur.getChar(), cur.getChild((char)(i+97)));
-                if(temp.length() > longestWord.length()) {
+                if(temp.length() >= longestWord.length()) {
                     longestWord = temp;
                 }
             }
