@@ -8,6 +8,8 @@
 #include "longest_word_search.h"
 #include "queue_ids.h"
 #include <sys/unistd.h>
+#include <signal.h>
+#include <pthread.h>
 #ifndef mac
 size_t                  /* O - Length of string */
 strlcpy(char       *dst,        /* O - Destination string */
@@ -38,6 +40,32 @@ strlcpy(char       *dst,        /* O - Destination string */
     return (srclen);
 }
 #endif
+
+typedef struct status{
+    int index;
+    int count;
+} status;
+
+char** prefixArray;
+status* statusArray;
+int prefixCount = 0;
+
+pthread_mutex_t lock;
+
+void sigintHandler(int sig_num) {
+    //Print status
+    printf("");
+    for(int i = 0; i < prefixCount; i++) {
+        if(statusArray[i].count == -1 || statusArray[i].index == -1)
+            printf("%s - pending\n", prefixArray[i]);
+        else
+            printf("%s - %d of %d\n", prefixArray[i], statusArray[i].index, statusArray[i].count);
+    }
+    fflush(stdout);
+
+    //Clear handler
+    signal(SIGINT, sigintHandler);
+}
 
 void send(char* prefix, int id)
 {
@@ -120,8 +148,27 @@ int main(int argc, char** argv) {
     }
 
     int waitTime = atoi(argv[1]);
-    int prefixCount = argc - 2;
+    prefixCount = argc - 2;
+    prefixArray = (char**) malloc(sizeof(char**) * prefixCount);
+    statusArray = (status*) malloc(sizeof(status) * prefixCount);
     response_buf response;
+
+    //Initialize mutex to protect global status and prefix arrays
+    pthread_mutex_init(&lock, NULL);
+
+    //Declare signal handler
+    signal(SIGINT, sigintHandler);
+
+    //Populate prefix arrays using mutex and strlcpy
+    status pending;
+    pending.count = -1;
+    pending.count = -1;
+    for(int i = 0; i < prefixCount; i++) {
+        pthread_mutex_lock(&lock);
+        strlcpy(prefixArray[i], argv[i + 2], WORD_LENGTH);
+        statusArray[i] = pending;
+        pthread_mutex_unlock(&lock);
+    }
 
     //Loop through each prefix
     //Starts at 1 since example output shows msgsnds as 1-indexed
@@ -146,10 +193,19 @@ int main(int argc, char** argv) {
         responseArray[response.index] = response;
         passageCount = response.count;
 
+        pthread_mutex_lock(&lock);
+        statusArray[response.index].index = 0;
+        statusArray[response.index].count = response.count;
+        pthread_mutex_unlock(&lock);
+
+
         //Now we must loop count-1 times since we've received one
         for(int j = 1; j < response.count; j++) {
             response = receive();
             responseArray[response.index] = response;
+            pthread_mutex_lock(&lock);
+            statusArray[response.index].index++;
+            pthread_mutex_unlock(&lock);
         }
 
         //Print report, looping for each passage
