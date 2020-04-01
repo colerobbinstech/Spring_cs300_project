@@ -49,7 +49,7 @@ public class PassageProcessor {
             try {
                 SearchRequest req = MessageJNI.readPrefixRequestMsg();
 
-                System.out.println("**prefix(" + req.requestID + ") " + req.prefix + " received");
+                System.out.print("**prefix(" + req.requestID + ") " + req.prefix + " received\n");
 
                 //Check for invalid prefix and exit conditions
                 if(req.prefix.length() < 3 || req.prefix.length() > 20)

@@ -62,10 +62,10 @@ class Worker extends Thread{
         String longestWord = this.textTrieTree.getLongestWord(prefix);
         
         if (longestWord.equals("")){
-          System.out.println("Worker-"+this.id+" "+req.requestID+":"+ prefix+" ==> not found ");
+          System.out.print("Worker-"+this.id+" "+req.requestID+":"+ prefix+" ==> not found\n");
           resultsOutputArray.put(new SearchResult(this.id));
         } else{
-          System.out.println("Worker-"+this.id+" "+req.requestID+":"+ prefix+" ==> " + longestWord);
+          System.out.print("Worker-"+this.id+" "+req.requestID+":"+ prefix+" ==> " + longestWord + "\n");
           resultsOutputArray.put(new SearchResult(true, this.id, longestWord));
         }
       } catch(InterruptedException e){

@@ -75,8 +75,8 @@ void send(char* prefix, int id)
         fprintf(stderr, "Error sending msg: %s\n", strerror( errnum ));
         exit(1);
     }
-    // else
-    //     fprintf(stderr,"Message(%d): \"%s\" Sent (%d bytes)\n", sbuf.id, sbuf.prefix,(int)buf_length);
+    else
+        fprintf(stderr,"Message(%d): \"%s\" Sent (%d bytes)\n", sbuf.id, sbuf.prefix,(int)buf_length);
 }
 
 response_buf receive()
@@ -110,7 +110,7 @@ response_buf receive()
       }
     } while ((ret < 0 ) && (errno == 4));
     //fprintf(stderr,"msgrcv error return code --%d:$d--",ret,errno);
-
+    return rbuf;
 }
 
 int main(int argc, char** argv) {
@@ -130,16 +130,16 @@ int main(int argc, char** argv) {
     for(int i = 1; i <= prefixCount; i++) {
         char* word = argv[i+1];
         int length = strlen(word);
+        int passageCount = -1;
 
         //Check if prefix is valid
         if(length < 3 || length > 20) {
-            printf("Invalid length of prefix");
+            printf("Invalid length of prefix\n");
             continue;
         }
 
         //Send the message
         send(word, i);
-        printf("Message(%d): \"%s\" Sent (%d bytes)",i, word,buffer_length);
         sleep(waitTime);
 
         //Receive one message so we can see total amount of passages
@@ -147,6 +147,7 @@ int main(int argc, char** argv) {
         //Use this total amount to create an array of response_buf
         responseArray = malloc(response.count * sizeof(response_buf));
         responseArray[response.index] = response;
+        passageCount = response.count;
 
         //Now we must loop count-1 times since we've received one
         for(int j = 1; j < response.count; j++) {
@@ -156,13 +157,12 @@ int main(int argc, char** argv) {
 
         //Print report, looping for each passage
         printf("Report \"%s\"\n", word);
-        for(int j = 0; j < response.count; j++) {
+        for(int j = 0; j < passageCount; j++) {
             //Not found
             if(responseArray[j].present == 0) {
                 printf("Passage %d - %s - no word found\n", j, responseArray[j].location_description);
             }
-            //Found
-            else {
+            else { //Found
                 printf("Passage %d - %s - %s\n", j, responseArray[j].location_description, responseArray[j].longest_word);
             }
         }
