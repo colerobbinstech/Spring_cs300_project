@@ -41,31 +41,38 @@ strlcpy(char       *dst,        /* O - Destination string */
 }
 #endif
 
+//Struct to keep track of copmletion status on each prefix
 typedef struct status{
     int index;
     int count;
 } status;
 
+//Store prefixes, statuses, and count of prefixes
 char **prefixArray;
 status* statusArray;
 int prefixCount = 0;
 
 pthread_mutex_t lock;
 
+//Handles Ctrl+C 
 void sigintHandler(int sig_num) {
     //Print status
     printf(" ");
     for(int i = 0; i < prefixCount; i++) {
-        if(statusArray[i].count == -1 || statusArray[i].index == -1) {
+        if(statusArray[i].count == -1 || statusArray[i].index == -1) { //No responses received
             printf("%s - pending\n", prefixArray[i]);
         }
-        else if(statusArray[i].count == statusArray[i].index) {
+        else if(statusArray[i].count == -2 || statusArray[i].index == -2) { //Invalid prefix
+            printf("%s - invalid\n", prefixArray[i]);
+        }
+        else if(statusArray[i].count == statusArray[i].index) { //All Responses Received
             printf("%s - completed\n", prefixArray[i]);
         }
-        else {
+        else { //Midway through
             printf("%s - %d of %d\n", prefixArray[i], statusArray[i].index, statusArray[i].count);
         }
     }
+    //Sigint prints weren't flushing
     fflush(stdout);
 
     //Clear handler
@@ -79,12 +86,6 @@ void send(char* prefix, int id)
     key_t key;
     prefix_buf sbuf;
     size_t buf_length;
-
-    // if (argc <= 1 || strlen(argv[1]) <3) {
-    //     printf("Error: please provide prefix of at least three characters for search\n");
-    //     printf("Usage: %s <prefix>\n",argv[0]);
-    //     exit(-1);
-    // }
 
     key = ftok(CRIMSON_ID,QUEUE_NUMBER);
     if ((msqid = msgget(key, msgflg)) < 0) {
@@ -146,6 +147,11 @@ response_buf receive()
     return rbuf;
 }
 
+/** Takes time to wait and prefixes as input
+ * Initializes mutex and sigint
+ * 
+ * 
+ */
 int main(int argc, char** argv) {
 
     if(argc < 3) {
@@ -154,6 +160,7 @@ int main(int argc, char** argv) {
 
     int waitTime = atoi(argv[1]);
     prefixCount = argc - 2;
+    //We now know the size of prefix and status arrays
     prefixArray = (char**) malloc(sizeof(char**) * prefixCount);
     statusArray = (status*) malloc(sizeof(status) * prefixCount);
     response_buf response;
@@ -170,7 +177,7 @@ int main(int argc, char** argv) {
         
         pthread_mutex_lock(&lock);
         strlcpy(prefixArray[i], argv[i + 2], WORD_LENGTH);
-        statusArray[i].count = -1;
+        statusArray[i].count = -1; //Default starting values checked for by handler
         statusArray[i].index = -1;
         pthread_mutex_unlock(&lock);
     }
@@ -178,13 +185,17 @@ int main(int argc, char** argv) {
     //Loop through each prefix
     //Starts at 1 since example output shows msgsnds as 1-indexed
     for(int i = 1; i <= prefixCount; i++) {
-        char* word = argv[i+1];
+        char* word = argv[i+1]; //prefix
         int length = strlen(word);
         int passageCount = -1;
 
         //Check if prefix is valid
         if(length < 3 || length > 20) {
-            fprintf(stderr, "Invalid length of prefix\n");
+            fprintf(stderr, "Invalid length of prefix: %s\n", word);
+            pthread_mutex_lock(&lock);
+            statusArray[i].count = -2; //Default ERROR values checked for by handler
+            statusArray[i].index = -2;
+            pthread_mutex_unlock(&lock);
             continue;
         }
 
@@ -199,7 +210,7 @@ int main(int argc, char** argv) {
         passageCount = response.count;
 
         pthread_mutex_lock(&lock);
-        statusArray[i-1].index = 1;
+        statusArray[i-1].index = 1; //First response received
         statusArray[i-1].count = response.count;
         pthread_mutex_unlock(&lock);
 
@@ -213,7 +224,7 @@ int main(int argc, char** argv) {
             response = receive();
             responseArray[response.index] = response;
             pthread_mutex_lock(&lock);
-            statusArray[i-1].index++;
+            statusArray[i-1].index++; //Increment how far along we are in status
             pthread_mutex_unlock(&lock);
         }
 
