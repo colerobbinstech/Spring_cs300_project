@@ -60,8 +60,10 @@ class Worker extends Thread{
         SearchRequest req = this.prefixRequestArray.take();
         String prefix = req.prefix;
         String longestWord = this.textTrieTree.getLongestWord(prefix);
+
+        if(prefix.equals("") && req.requestID == -1) return;
         
-        if (longestWord.equals("")){
+        if (longestWord.equals("----")){
           System.out.print("Worker-"+this.id+" "+req.requestID+":"+ prefix+" ==> not found\n");
           resultsOutputArray.put(new SearchResult(this.id));
         } else{

@@ -54,8 +54,13 @@ public class PassageProcessor {
                 //Check for invalid prefix and exit conditions
                 if(req.prefix.length() < 3 || req.prefix.length() > 20)
                     break;
-                if(req.prefix.equals("   "))
+                if(req.prefix.equals("   ")) {
+                    SearchRequest stop = new SearchRequest(-1, "");
+                    for(int i = 0; i < passageCount; i++) {
+                        workers[i].put(stop);
+                    }
                     break;
+                }
 
                 //Add prefix to workers
                 for(int i = 0; i < passageCount; i++) {
@@ -65,7 +70,6 @@ public class PassageProcessor {
                 //Get results back from workers
                 for(int i = 0; i < passageCount; i++) {
                     SearchResult result = resultsOutputArray.take();
-
                     if(result.found) {
                         MessageJNI.writeLongestWordResponseMsg(req.requestID, req.prefix, 
                                 result.passageID, passages.get(result.passageID), result.longestWord,

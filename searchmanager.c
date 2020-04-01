@@ -122,8 +122,6 @@ int main(int argc, char** argv) {
     int waitTime = atoi(argv[1]);
     int prefixCount = argc - 2;
     response_buf response;
-    response_buf* responseArray;
-    int buffer_length=sizeof(response_buf)-sizeof(long);
 
     //Loop through each prefix
     //Starts at 1 since example output shows msgsnds as 1-indexed
@@ -134,18 +132,17 @@ int main(int argc, char** argv) {
 
         //Check if prefix is valid
         if(length < 3 || length > 20) {
-            printf("Invalid length of prefix\n");
+            fprintf(stderr, "Invalid length of prefix\n");
             continue;
         }
 
         //Send the message
         send(word, i);
-        sleep(waitTime);
 
         //Receive one message so we can see total amount of passages
         response = receive();
         //Use this total amount to create an array of response_buf
-        responseArray = malloc(response.count * sizeof(response_buf));
+        response_buf responseArray[response.count];
         responseArray[response.index] = response;
         passageCount = response.count;
 
@@ -166,5 +163,8 @@ int main(int argc, char** argv) {
                 printf("Passage %d - %s - %s\n", j, responseArray[j].location_description, responseArray[j].longest_word);
             }
         }
+        sleep(waitTime);
     }
+    send("   ", 0);
+    printf("Exiting ...");
 }
