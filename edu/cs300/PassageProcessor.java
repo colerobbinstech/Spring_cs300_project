@@ -33,15 +33,19 @@ public class PassageProcessor {
             e.printStackTrace();
         }
 
-        //Create array of workers and their outputs
+        //Create array of workers, their inputs, and their outputs
         int passageCount = passages.size();
-        ArrayBlockingQueue<SearchRequest>[] workers = (ArrayBlockingQueue<SearchRequest>[]) new ArrayBlockingQueue[passageCount];
+        ArrayBlockingQueue<SearchRequest>[] prefixInputArray = (ArrayBlockingQueue<SearchRequest>[]) new ArrayBlockingQueue[passageCount];
         ArrayBlockingQueue<SearchResult> resultsOutputArray=new ArrayBlockingQueue<SearchResult>(passageCount*10);
+        ArrayList<Worker> workerArray = new ArrayList<Worker>();
 
-        //Initialize workers array and start new threads for each Worker with its own passage
+
+
+        //Initialize prefixInputArray array and start new threads for each Worker with its own passage
         for (int i = 0; i < passageCount ; i++) {
-            workers[i]=new ArrayBlockingQueue<SearchRequest>(10);
-            new Worker(passages.get(i), i, workers[i], resultsOutputArray).start();
+            prefixInputArray[i]=new ArrayBlockingQueue<SearchRequest>(10);
+            workerArray.add(new Worker(passages.get(i), i, prefixInputArray[i], resultsOutputArray));
+            workerArray.get(i).start();
          }
         
         //Begin the prefix process
@@ -57,17 +61,18 @@ public class PassageProcessor {
                 if(req.prefix.equals("   ")) {
                     SearchRequest stop = new SearchRequest(-1, "");
                     for(int i = 0; i < passageCount; i++) {
-                        workers[i].put(stop);
+                        prefixInputArray[i].put(stop);
+                        workerArray.get(i).join();
                     }
                     break;
                 }
 
-                //Add prefix to workers
+                //Add prefix to prefixInputArray
                 for(int i = 0; i < passageCount; i++) {
-                    workers[i].put(req);
+                    prefixInputArray[i].put(req);
                 }
 
-                //Get results back from workers
+                //Get results back from prefixInputArray
                 for(int i = 0; i < passageCount; i++) {
                     SearchResult result = resultsOutputArray.take();
                     if(result.found) {
