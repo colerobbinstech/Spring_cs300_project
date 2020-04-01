@@ -208,7 +208,7 @@ int main(int argc, char** argv) {
         for(int j = 1; j < response.count; j++) {
             #ifdef DEBUG
                 //Slow down receives so I can properly test sigint
-                sleep(1)
+                sleep(1);
             #endif 
             response = receive();
             responseArray[response.index] = response;
