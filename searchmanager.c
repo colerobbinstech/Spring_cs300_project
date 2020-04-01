@@ -166,5 +166,5 @@ int main(int argc, char** argv) {
         sleep(waitTime);
     }
     send("   ", 0);
-    printf("Exiting ...");
+    printf("Exiting ...\n");
 }

@@ -21,7 +21,7 @@ public class SearchResult {
   public SearchResult(int passageID){
     this.found = false;
     this.passageID = passageID;
-    this.longestWord = "";
+    this.longestWord = "----";
   }
 
 }
