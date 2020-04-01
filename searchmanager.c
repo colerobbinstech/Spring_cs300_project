@@ -46,7 +46,7 @@ typedef struct status{
     int count;
 } status;
 
-char** prefixArray;
+char **prefixArray;
 status* statusArray;
 int prefixCount = 0;
 
@@ -54,12 +54,17 @@ pthread_mutex_t lock;
 
 void sigintHandler(int sig_num) {
     //Print status
-    printf("");
+    printf(" ");
     for(int i = 0; i < prefixCount; i++) {
-        if(statusArray[i].count == -1 || statusArray[i].index == -1)
+        if(statusArray[i].count == -1 || statusArray[i].index == -1) {
             printf("%s - pending\n", prefixArray[i]);
-        else
+        }
+        else if(statusArray[i].count == statusArray[i].index) {
+            printf("%s - completed\n", prefixArray[i]);
+        }
+        else {
             printf("%s - %d of %d\n", prefixArray[i], statusArray[i].index, statusArray[i].count);
+        }
     }
     fflush(stdout);
 
@@ -160,13 +165,13 @@ int main(int argc, char** argv) {
     signal(SIGINT, sigintHandler);
 
     //Populate prefix arrays using mutex and strlcpy
-    status pending;
-    pending.count = -1;
-    pending.count = -1;
     for(int i = 0; i < prefixCount; i++) {
+        prefixArray[i] = (char*) malloc(sizeof(char) * WORD_LENGTH);
+        
         pthread_mutex_lock(&lock);
         strlcpy(prefixArray[i], argv[i + 2], WORD_LENGTH);
-        statusArray[i] = pending;
+        statusArray[i].count = -1;
+        statusArray[i].index = -1;
         pthread_mutex_unlock(&lock);
     }
 
@@ -194,8 +199,8 @@ int main(int argc, char** argv) {
         passageCount = response.count;
 
         pthread_mutex_lock(&lock);
-        statusArray[response.index].index = 0;
-        statusArray[response.index].count = response.count;
+        statusArray[i-1].index = 1;
+        statusArray[i-1].count = response.count;
         pthread_mutex_unlock(&lock);
 
 
@@ -204,7 +209,7 @@ int main(int argc, char** argv) {
             response = receive();
             responseArray[response.index] = response;
             pthread_mutex_lock(&lock);
-            statusArray[response.index].index++;
+            statusArray[i-1].index++;
             pthread_mutex_unlock(&lock);
         }
 
