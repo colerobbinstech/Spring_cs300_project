@@ -1,0 +1,3 @@
+word is a word but what if the word contains wor'ds?
+I pre that pre-nested statements should not matter
+con_conditional cons&pros con8s CONS

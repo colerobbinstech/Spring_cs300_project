@@ -3,3 +3,5 @@ Mansfield_Park.txt
 The_Call_Of_The_Wild.txt
 Tale_Of_Two_Cities.txt
 Peter_Pan.txt
+punctuation.txt
+long.txt

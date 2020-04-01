@@ -109,7 +109,7 @@ void send(char* prefix, int id)
         exit(1);
     }
     else
-        fprintf(stderr,"Message(%d): \"%s\" Sent (%d bytes)\n", sbuf.id, sbuf.prefix,(int)buf_length);
+        fprintf(stderr,"\nMessage(%d): \"%s\" Sent (%d bytes)\n\n", sbuf.id, sbuf.prefix,(int)buf_length);
 }
 
 response_buf receive()
@@ -206,6 +206,10 @@ int main(int argc, char** argv) {
 
         //Now we must loop count-1 times since we've received one
         for(int j = 1; j < response.count; j++) {
+            #ifdef DEBUG
+                //Slow down receives so I can properly test sigint
+                sleep(1)
+            #endif 
             response = receive();
             responseArray[response.index] = response;
             pthread_mutex_lock(&lock);
