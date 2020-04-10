@@ -1,0 +1,7 @@
+ulysses.txt
+cleopatra.txt
+davidCopperfield.txt
+anna-kareinena.txt
+long_file_name_for_a_pass.txt
+one-word.txt
+special-characters.txt
